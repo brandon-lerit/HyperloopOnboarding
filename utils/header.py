@@ -1,6 +1,10 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
-from widgets import *
+from widgets.emergency_button import EmergencyButton
+from widgets.fsm import FSM
+from widgets.help_pupup import HelpPopup
+from widgets.quit import Quit
+from widgets.timer import Timer
 from PyQt5.QtGui import *
 from PyQt5.QtCore import QObject, pyqtSignal
 import time
