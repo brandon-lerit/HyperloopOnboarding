@@ -14,21 +14,20 @@ class MainWindow(QWidget):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__()
 
-        # Insert change here
         self.setWindowTitle("Hyperloop GUI")
 
         hbox = QHBoxLayout(self)
 
         width = 1250
-        height = 900
+        height = 1500
 
         header = Header(w=int(width), h=int(height))
-        header.b1.clicked.connect(
-            lambda: self.renderPage(header.navbar(header.b1)))
-        header.b2.clicked.connect(
-            lambda: self.renderPage(header.navbar(header.b2)))
-        header.b3.clicked.connect(
-            lambda: self.renderPage(header.navbar(header.b3)))
+        # header.b1.clicked.connect(
+        #     lambda: self.renderPage(header.navbar(header.b1)))
+        # header.b2.clicked.connect(
+        #     lambda: self.renderPage(header.navbar(header.b2)))
+        # header.b3.clicked.connect(
+        #     lambda: self.renderPage(header.navbar(header.b3)))
         header.b4.clicked.connect(
             lambda: self.renderPage(header.navbar(header.b4)))
         header.b5.clicked.connect(
@@ -38,13 +37,10 @@ class MainWindow(QWidget):
 
         body = Body(int(width), int(height))
         visualizer = Visualizer()
-        # batteryPage = BatteryPage()
         fsm = FSM(width, height)
 
         self.Stack.addWidget(body)
         self.Stack.addWidget(visualizer)
-        # self.Stack.addWidget(batteryPage)
-        # temperature page not implemented yet
         self.Stack.addWidget(Body(width, height))
         self.Stack.addWidget(fsm)
 
@@ -58,7 +54,7 @@ class MainWindow(QWidget):
 
         self.setLayout(hbox)
         QApplication.setStyle(QStyleFactory.create('Cleanlooks'))
-        self.setStyleSheet("background-color: #bebebe;")
+        self.setStyleSheet("background-color: #FF7276;")
 
         self.setGeometry(300, 300, width, height)
 

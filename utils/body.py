@@ -24,46 +24,18 @@ class Body(QWidget):
 
         home = QSplitter(Qt.Vertical)
 
-        home_footer = QSplitter(Qt.Horizontal)
-        bottom_left = QSplitter(Qt.Vertical)
-        vel_acc = QSplitter(Qt.Horizontal)
+        # Create temperature and distance widgets
+        temperature = QLabel("Temperature Widget")
+        distance = QLabel("Distance Widget")
 
-        speedometer = Speedometer()
-        accelerometer = Accelerometer()
-        vel_acc.addWidget(speedometer)
-        vel_acc.addWidget(accelerometer)
-
-        speed = Speed()
-        bottom_left.addWidget(vel_acc)
-        bottom_left.addWidget(speed)
-
-        # temporary graph
+        # Temporary graph setup
         self.temporary_graph = pg.PlotWidget()
-        hour = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        temperature = [30, 32, 34, 32, 33, 31, 29, 32, 35, 45]
         self.temporary_graph.resize(int(self.width), int(self.height / 4))
 
-        self.plot_buttons = PlotButtons(self.temporary_graph)
-
-        # Data for plots
-        self.x_data = [[], [], [], [], [], []]
-        self.y_data = [[], [], [], [], [], []]
-        self.current_plot_indices = [0, 0, 0, 0, 0, 0]
-        self.current_plot_values = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]  # x,y for each plot
-        self.currentPlotIndex = 0 
-        self.currentPlotName = "Accelerometer"
-
-        prox_sensors = ProximitySensor()
-        home_footer.addWidget(bottom_left)
-        home_footer.addWidget(prox_sensors)
-
-        vgraph = QSplitter(Qt.Horizontal)
-        vgraph.setSizes([2, 2])
-
+        # Add widgets to the layout
         home.addWidget(self.temporary_graph)
-        home.addWidget(self.plot_buttons)
-        home.addWidget(home_footer)
-        home.setSizes([350, 5, 45])
+        home.addWidget(temperature)
+        home.addWidget(distance)
 
         hbox.addWidget(home)
         self.setLayout(hbox)
@@ -71,8 +43,6 @@ class Body(QWidget):
 
         self.timer = QTimer(self, timeout=self.update)
         self.timer.start(1000)
-        self.x = 0
-        self.y = 0
 
     def update(self):
         current_plot = self.plot_buttons.getCurrentPlot()

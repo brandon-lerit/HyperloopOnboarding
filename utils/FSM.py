@@ -71,58 +71,17 @@ class FSM(QWidget):
             label.move(int(finalx), int(finaly))
             return label
 
-        self.states = {i: create(i) for i in constants.STATES.keys()}
+        self.states = {i: create(i) for i in ["Temperature", "Distance"]}
 
         layout = QGridLayout()
-
-        # dimensions may depend on other labels, need to check on other devices
-        scene = QGraphicsScene(self.left, self.top,
-                               self.width * 1.07, self.height * 0.81)
+        
+        scene = QGraphicsScene(self.left, self.top, self.width * 1.07, self.height * 0.81)
         xi = self.height * 0.81 / 5
         yi = self.width * 1.07 / 7
-        self.states["Stop"].move(int(2 * xi), int(0*yi))
-        scene.addWidget(self.states["Stop"])
-        self.states["Crawl"].move(int(0 * xi), int(yi))
-        scene.addWidget(self.states["Crawl"])
-        self.states["Deceleration"].move(int(2 * xi), int(2 * yi))
-        scene.addWidget(self.states["Deceleration"])
-        self.states["Emergency"].move(int(4 * xi), int(yi))
-        scene.addWidget(self.states["Emergency"])
-        self.states["Cruise"].move(int(4 * xi), int(3 * yi))
-        scene.addWidget(self.states["Cruise"])
-        self.states["Verification"].move(int(6 * xi), int(0*yi))
-        scene.addWidget(self.states["Verification"])
-        self.states["Pre-Acceleration"].move(int(6 * xi), int(2 * yi))
-        scene.addWidget(self.states["Pre-Acceleration"])
-        self.states["Acceleration"].move(int(6*xi), int(3*yi))
-        scene.addWidget(self.states["Acceleration"])
-        self.states["Overheating"].move(int(8*xi), int(yi))
-        scene.addWidget(self.states["Overheating"])
-        self.states["Extreme Overheating"].move(int(8 * xi), int(3 * yi))
-        scene.addWidget(self.states["Extreme Overheating"])
-
-        scene.addWidget(arrow(self.states["Stop"], self.states["Crawl"]))
-        scene.addWidget(
-            arrow(self.states["Crawl"], self.states["Deceleration"]))
-        scene.addWidget(arrow(self.states["Stop"], self.states["Crawl"]))
-        scene.addWidget(
-            arrow(self.states["Deceleration"], self.states["Stop"]))
-        scene.addWidget(
-            arrow(self.states["Verification"], self.states["Stop"]))
-        scene.addWidget(arrow(self.states["Verification"],
-                              self.states["Pre-Acceleration"]))
-        scene.addWidget(arrow(self.states["Verification"],
-                              self.states["Overheating"]))
-        scene.addWidget(
-            arrow(self.states["Pre-Acceleration"], self.states["Acceleration"]))
-        scene.addWidget(
-            arrow(self.states["Acceleration"], self.states["Cruise"]))
-        scene.addWidget(
-            arrow(self.states["Cruise"], self.states["Deceleration"]))
-        scene.addWidget(arrow(self.states["Acceleration"],
-                              self.states["Deceleration"]))
-        scene.addWidget(arrow(self.states["Overheating"],
-                              self.states["Extreme Overheating"]))
+        self.states["Temperature"].move(int(2 * xi), int(0*yi))
+        scene.addWidget(self.states["Temperature"])
+        self.states["Distance"].move(int(4 * xi), int(yi))
+        scene.addWidget(self.states["Distance"])
 
         view = QGraphicsView(scene)
         layout.addWidget(view)
