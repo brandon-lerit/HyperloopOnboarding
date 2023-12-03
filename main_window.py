@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5 import QtGui
 import sys
+import serial
 from widgets import *
 from utils.header import Header
 from utils.body import Body
@@ -19,6 +20,8 @@ class MainWindow(QWidget):
 
         width = 1250
         height = 1500
+
+        self.arduino = serial.Serial('COM3', 9600)
 
         header = Header(w=int(width), h=int(height))
         header.b4.clicked.connect(
@@ -55,3 +58,6 @@ class MainWindow(QWidget):
 
     def renderPage(self, i):
         self.Stack.setCurrentIndex(i)
+
+    def closeEvent(self, event):
+        self.arduino.close()

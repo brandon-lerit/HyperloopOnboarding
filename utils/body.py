@@ -22,6 +22,7 @@ class Body(QWidget):
         home = QSplitter(Qt.Vertical)
 
         # Create temperature and distance widgets
+
         temperature = QLabel("Temperature Widget")
         distance = QLabel("Distance Widget")
 
