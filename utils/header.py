@@ -8,7 +8,6 @@ from widgets.timer import Timer
 from PyQt5.QtGui import *
 from PyQt5.QtCore import QObject, pyqtSignal
 import time
-from widgets import progressBar
 import constants as cons
 
 
@@ -29,16 +28,16 @@ class Header(QWidget):
         grid1.addWidget(quit, 0, 0, alignment=Qt.AlignCenter)
 
         timer = Timer(self.width, self.height)
-        grid1.addWidget(timer, 0, 2, alignment=Qt.AlignCenter)
+        grid1.addWidget(timer, 0, 2, alignment=Qt.AlignCenter,)
 
-        help = HelpPopup(int(self.width), int(self.height))
-        grid1.addWidget(help, 0, 3, alignment=Qt.AlignCenter)
+        # help = HelpPopup(int(self.width), int(self.height))
+        # grid1.addWidget(help, 0, 3, alignment=Qt.AlignCenter)
 
         fsm = FSM()
 
-        emergency_button = EmergencyButton(fsm, self.width, self.height)
-        grid1.addWidget(emergency_button, 0, 4,
-                        alignment=Qt.AlignCenter)
+        # emergency_button = EmergencyButton(fsm, self.width, self.height)
+        # grid1.addWidget(emergency_button, 0, 4,
+        #                 alignment=Qt.AlignCenter)
 
         grid2 = QGridLayout(self)
         self.b4 = QPushButton("Temperature")
@@ -58,17 +57,13 @@ class Header(QWidget):
         hbox.addLayout(vbox)
         self.setStyleSheet(qstr)
 
-        splitter4 = QSplitter(Qt.Horizontal)
-        self.pBarContainer = progressBar.ProgressBar()
-        splitter4.addWidget(self.pBarContainer.label)
+        # splitter4 = QSplitter(Qt.Horizontal)
+        # self.pBarContainer = progressBar.ProgressBar()
+        # splitter4.addWidget(self.pBarContainer.label)
 
         # PROGRESS BAR
-        splitter4.addWidget(self.pBarContainer.pBar)
-        splitter4.setSizes([int(self.height / 30), int(self.height / 30)])
-
-
-
-
+        # splitter4.addWidget(self.pBarContainer.pBar)
+        # splitter4.setSizes([int(self.height / 30), int(self.height / 30)])
 
         hyperloop = QPixmap('state_icons/logo.png')
         hyperloop = hyperloop.scaled(200, 100)
@@ -78,14 +73,9 @@ class Header(QWidget):
         label.setFixedHeight(100)
         label.setPixmap(hyperloop)
 
-        splitter4.addWidget(label)           
+        # splitter4.addWidget(label)           
 
-        hbox.addWidget(splitter4)
-
-
-
-
-
+        # hbox.addWidget(splitter4)
 
         self.timer = QTimer(self, timeout=self.update)
         self.timer.start(1000)

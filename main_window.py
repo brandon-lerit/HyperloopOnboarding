@@ -6,7 +6,6 @@ from widgets import *
 from utils.header import Header
 from utils.body import Body
 from utils.visualizer import Visualizer
-from utils.batteryPage import BatteryPage
 from utils.FSM import FSM
 
 
@@ -14,7 +13,7 @@ class MainWindow(QWidget):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__()
 
-        self.setWindowTitle("Hyperloop GUI")
+        self.setWindowTitle("Hyperloop Onboarding GUI")
 
         hbox = QHBoxLayout(self)
 
@@ -22,12 +21,6 @@ class MainWindow(QWidget):
         height = 1500
 
         header = Header(w=int(width), h=int(height))
-        # header.b1.clicked.connect(
-        #     lambda: self.renderPage(header.navbar(header.b1)))
-        # header.b2.clicked.connect(
-        #     lambda: self.renderPage(header.navbar(header.b2)))
-        # header.b3.clicked.connect(
-        #     lambda: self.renderPage(header.navbar(header.b3)))
         header.b4.clicked.connect(
             lambda: self.renderPage(header.navbar(header.b4)))
         header.b5.clicked.connect(
