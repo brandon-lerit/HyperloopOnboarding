@@ -6,6 +6,8 @@ from widgets.proximity_sensors import ProximitySensor
 from widgets import *
 from constants import *
 import pyqtgraph as pg
+import serial
+import json
 
 
 class Body(QWidget):
@@ -13,93 +15,156 @@ class Body(QWidget):
         super(Body, self).__init__()
         self.width = args[0]
         self.height = args[1]
-        hbox = QHBoxLayout(self)
 
-        sshFile = "utils/body.css"
-        with open(sshFile, "r") as fh:
-            qstr = str(fh.read())
+        # Create a QStackedWidget to manage the different pages
+        self.stacked_widget = QStackedWidget(self)
 
-        home = QSplitter(Qt.Vertical)
+        # Create four different pages (widgets)
+        self.page1 = self.createTemperaturePage("Temperature (C)", "Temperature (C)")
+        self.page2 = self.createTemperaturePage("Temperature (F)", "Temperature (F)")
+        self.page3 = self.createTemperaturePage("Temperature (K)", "Temperature (K)")
+        self.page4 = self.createDistancePage()
 
-        # Create temperature and distance widgets
+        # Add pages to the stacked widget
+        self.stacked_widget.addWidget(self.page1)
+        self.stacked_widget.addWidget(self.page2)
+        self.stacked_widget.addWidget(self.page3)
+        self.stacked_widget.addWidget(self.page4)
 
-        temperature = QLabel("Temperature Widget")
-        distance = QLabel("Distance Widget")
+        # Set up the layout
+        vbox = QVBoxLayout(self)
+        vbox.addWidget(self.stacked_widget)
 
-        # Temporary graph setup
-        self.temporary_graph = pg.PlotWidget()
-        self.temporary_graph.resize(int(self.width), int(self.height / 4))
+        # Add buttons to switch between pages
+        self.button_page1 = QPushButton("Temperature (C)", self)
+        self.button_page1.clicked.connect(self.switchToPage1)
+        vbox.addWidget(self.button_page1)
 
-        # Add widgets to the layout
-        home.addWidget(self.temporary_graph)
-        home.addWidget(temperature)
-        home.addWidget(distance)
+        self.button_page2 = QPushButton("Temperature (F)", self)
+        self.button_page2.clicked.connect(self.switchToPage2)
+        vbox.addWidget(self.button_page2)
 
-        hbox.addWidget(home)
-        self.setLayout(hbox)
-        self.setStyleSheet(qstr)
+        self.button_page3 = QPushButton("Temperature (K)", self)
+        self.button_page3.clicked.connect(self.switchToPage3)
+        vbox.addWidget(self.button_page3)
 
+        self.button_page4 = QPushButton("Distance (cm)", self)
+        self.button_page4.clicked.connect(self.switchToPage4)
+        vbox.addWidget(self.button_page4)
+
+        self.setLayout(vbox)
+
+        self.button_page1.setStyleSheet("background-color: lightcoral;")
+        self.button_page2.setStyleSheet("background-color: lightcoral;")
+        self.button_page3.setStyleSheet("background-color: lightcoral;")
+        self.button_page4.setStyleSheet("background-color: lightcoral;")
+
+        # Start with the first page
+        self.stacked_widget.setCurrentIndex(0)
+
+        # Set up the timer for updating data
         self.timer = QTimer(self, timeout=self.update)
         self.timer.start(1000)
 
+        # Serial communication with Arduino
+        try:
+            self.arduino = serial.Serial('COM3', 9600)  
+        except serial.SerialException as e:
+            print(f"Error opening Arduino port: {e}")
+            self.arduino = None
+
+    def createTemperaturePage(self, title, temperature):
+        page = QWidget()
+
+        # Temperature specific setup
+        temperature_label = QLabel(title)
+        font = QFont()
+        font.setPointSize(18)
+        temperature_label.setFont(font)
+        temperature_graph = pg.PlotWidget()
+        temperature_graph.setBackground('#ffffff')
+        temperature_graph.setLabel('left', temperature)
+        temperature_graph.setLabel('bottom', 'Time (s)')
+
+        # Add widgets to the layout
+        vbox = QVBoxLayout(page)
+        vbox.addWidget(temperature_label)
+        vbox.addWidget(temperature_graph)
+
+        return page
+
+    def createDistancePage(self):
+        page = QWidget()
+
+        # Distance specific setup
+        distance_label = QLabel("Distance (cm)")
+        font = QFont()
+        font.setPointSize(18)
+        distance_label.setFont(font)
+        distance_graph = pg.PlotWidget()
+        distance_graph.setBackground('#ffffff')
+        distance_graph.setLabel('left', 'Distance (cm)')
+        distance_graph.setLabel('bottom', 'Time (s)')
+
+        # Add widgets to the layout
+        vbox = QVBoxLayout(page)
+        vbox.addWidget(distance_label)
+        vbox.addWidget(distance_graph)
+
+        return page
+
+    def switchToPage1(self):
+        self.stacked_widget.setCurrentIndex(0)
+
+    def switchToPage2(self):
+        self.stacked_widget.setCurrentIndex(1)
+
+    def switchToPage3(self):
+        self.stacked_widget.setCurrentIndex(2)
+
+    def switchToPage4(self):
+        self.stacked_widget.setCurrentIndex(3)
+
     def update(self):
-        current_plot = self.plot_buttons.getCurrentPlot()
-        pen = pg.mkPen(width=10)
+        if self.arduino and self.arduino.isOpen():
+            try:
+                data = self.arduino.readline().decode().strip()
+                json_data = json.loads(data)
 
-        if (self.plot_buttons.getRescaleAxesFlag()):
-            self.plot_buttons.setRescaleAxesFlag(False)
-            x_axes = self.plot_buttons.getXAxesLimits()
-            y_axes = self.plot_buttons.getYAxesLimits()
-            self.temporary_graph.setXRange(x_axes[0], x_axes[1])
-            self.temporary_graph.setYRange(y_axes[0], y_axes[1])
+                current_page_index = self.stacked_widget.currentIndex()
+                current_page_widget = self.stacked_widget.currentWidget()
 
-        if (self.plot_buttons.getPlotResetFlag()):
-            # Reset the current plot
-            self.current_plot_values[current_plot][0] = 0
-            self.current_plot_values[current_plot][1] = 0
-            self.current_plot_indices[current_plot] = 0
-            self.x_data[current_plot] = [0]
-            self.y_data[current_plot] = [0]
-            self.plot_buttons.setPlotResetFlag(False)
+                if "Temperature" in current_page_widget.windowTitle():
+                    # Determine the temperature unit based on the current page's title
+                    temperature_unit = current_page_widget.windowTitle().split()[-1]
 
-        elif (self.plot_buttons.getChangedPlot()):
-            # Reset the plot
-            
-            self.currentPlotIndex = self.plot_buttons.getCurrentPlot
-            self.currentPlotName = self.plot_buttons.getCurrentPlotName
-            
-            self.temporary_graph.clear()
-            # add another getter in plot_buttons to get index of new graph 
-            # add another getter to get the name of the chaged graph 
-            # add another getter to get the x and y axes (units) of the changed graph
+                    if temperature_unit == "(C)":
+                        self.updateTemperatureGraph(current_page_widget, json_data["temperature_C"])
+                    elif temperature_unit == "(F)":
+                        self.updateTemperatureGraph(current_page_widget, json_data["temperature_F"])
+                    elif temperature_unit == "(K)":
+                        self.updateTemperatureGraph(current_page_widget, json_data["temperature_K"])
+                elif "Distance" in current_page_widget.windowTitle():
+                    self.updateDistanceGraph(current_page_widget, json_data["distance"])
 
-            # Plot all the data for the new plot
-            for i in range(len(self.x_data[current_plot])):
-                self.temporary_graph.plot([self.x_data[current_plot][i]], [self.y_data[current_plot][i]],
-                                          pen=pen, symbol='x', symbolSize=30)
+            except (ValueError, UnicodeDecodeError, json.JSONDecodeError) as e:
+                print(f"Error reading data from Arduino: {e}")
 
-            # Reset the changed plot flag
-            self.plot_buttons.setChangedPlot(False)
+    def updateTemperatureGraph(self, page, value):
+        temperature_graph = page.findChild(pg.PlotWidget)
 
-        else:
-            # Updated variables for the next data
-            for i in range(NUM_PLOTS):
-                # if statement for amount of time left
-                self.x_data[i].append(self.current_plot_values[i][0])
-                self.y_data[i].append(self.current_plot_values[i][1])
-                self.current_plot_values[i][0] += PLOT_INCREMENTS[i]
-                self.current_plot_values[i][1] += PLOT_INCREMENTS[i]
+        if temperature_graph:
+            # Update the temperature graph with the new value
+            pen = pg.mkPen(width=2)
+            temperature_graph.plot([value], pen=pen, symbol='o', symbolSize=5)
 
-            # Get the current index
-            currentIndex = self.current_plot_indices[current_plot]
+    def updateDistanceGraph(self, page, value):
+        distance_graph = page.findChild(pg.PlotWidget)
 
-            # Plot the current data point
-            self.temporary_graph.plot([self.x_data[current_plot][currentIndex]], [self.y_data[current_plot][currentIndex]],
-                                      pen=pen, symbol='x', symbolSize=30)
-
-            # Update the indices for the next datapoint
-            self.current_plot_indices[0] += 1
-            self.current_plot_indices[1] += 1
+        if distance_graph:
+            # Update the distance graph with the new value
+            pen = pg.mkPen(width=2)
+            distance_graph.plot([value], pen=pen, symbol='o', symbolSize=5)
 
     def dimensions(self):
         return self.width, self.height

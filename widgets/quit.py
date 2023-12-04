@@ -17,7 +17,7 @@ class Quit(QWidget):
         self.push.setText("Quit")
         self.push.setFont(QFont('AnyStyle', 18))
         self.push.setStyleSheet(
-            "background-color : red; border-radius: 5px; font-family: Helvetica; font-size: 14px; border: 3px solid black")
+            "background-color : lightcoral; border-radius: 5px; font-family: Helvetica; font-size: 20px; border: 3px solid black; color: black; padding: 10px")
         self.push.clicked.connect(self.pushedQuit)
         self.push.resize(int(self.width), int(self.height))
 

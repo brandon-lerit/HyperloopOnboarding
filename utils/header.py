@@ -39,20 +39,20 @@ class Header(QWidget):
         # grid1.addWidget(emergency_button, 0, 4,
         #                 alignment=Qt.AlignCenter)
 
-        grid2 = QGridLayout(self)
-        self.b4 = QPushButton("Temperature")
-        self.b4.clicked.connect(lambda: self.navbar(self.b4))
-        self.b4.resize(int(self.width / 5), int(self.height / 20))
-        self.b5 = QPushButton("Distance")
-        self.b5.clicked.connect(lambda: self.navbar(self.b5))
-        self.b5.resize(int(self.width / 5), int(self.height / 20))
-        grid2.addWidget(self.b4, 0, 3)
-        grid2.addWidget(self.b5, 0, 4)
+        # grid2 = QGridLayout(self)
+        # self.b4 = QPushButton("Temperature")
+        # self.b4.clicked.connect(lambda: self.navbar(self.b4))
+        # self.b4.resize(int(self.width / 5), int(self.height / 20))
+        # self.b5 = QPushButton("Distance")
+        # self.b5.clicked.connect(lambda: self.navbar(self.b5))
+        # self.b5.resize(int(self.width / 5), int(self.height / 20))
+        # grid2.addWidget(self.b4, 0, 3)
+        # grid2.addWidget(self.b5, 0, 4)
 
         vbox = QVBoxLayout(self)
 
         vbox.addLayout(grid1)
-        vbox.addLayout(grid2)
+        # vbox.addLayout(grid2)
 
         hbox.addLayout(vbox)
         self.setStyleSheet(qstr)

@@ -21,13 +21,9 @@ class MainWindow(QWidget):
         width = 1250
         height = 1500
 
-        self.arduino = serial.Serial('COM3', 9600)
+        # self.arduino = serial.Serial('COM3', 9600)
 
         header = Header(w=int(width), h=int(height))
-        header.b4.clicked.connect(
-            lambda: self.renderPage(header.navbar(header.b4)))
-        header.b5.clicked.connect(
-            lambda: self.renderPage(header.navbar(header.b5)))
 
         self.Stack = QStackedWidget(self)
 
@@ -50,14 +46,28 @@ class MainWindow(QWidget):
 
         self.setLayout(hbox)
         QApplication.setStyle(QStyleFactory.create('Cleanlooks'))
-        self.setStyleSheet("background-color: #FF7276;")
+        self.setStyleSheet("background-color: #D3D3D3;")
 
         self.setGeometry(300, 300, width, height)
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_plot)
+        self.timer.start(1000)
 
         self.showFullScreen()
 
     def renderPage(self, i):
         self.Stack.setCurrentIndex(i)
+
+    def update_plot(self):
+        if self.arduino.isOpen():
+            try:
+                data = self.arduino.readline().decode().strip()
+                value = float(data)
+                # Assuming you have a plot item in your Visualizer widget
+                self.Stack.widget(1).plot_widget.plot(value)  
+            except (ValueError, UnicodeDecodeError):
+                print("Error reading data from Arduino")
 
     def closeEvent(self, event):
         self.arduino.close()

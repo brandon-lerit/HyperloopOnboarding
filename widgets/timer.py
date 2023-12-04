@@ -8,7 +8,7 @@ class Timer(QWidget):
     def __init__(self, *args, parent=None):
         super(Timer, self).__init__(parent)
         self.width = int(args[0] / 10)
-        self.height = int(args[0] / 30)
+        self.height = int(args[1] / 30)
         self.initUI()
 
     def initUI(self):
@@ -17,7 +17,7 @@ class Timer(QWidget):
         self.label = QLabel("         Time         ", self)
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setStyleSheet(
-            "font-family: Helvetica; font-size: 14px; background-color: #2B26c1; color: white; border: 1px grey")
+            "font-family: Helvetica; font-size: 20px; background-color: lightcoral; color: black; border: 3px solid black; padding: 10px")
         self.label.resize(int(self.width), int(self.height))
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.showTime)
