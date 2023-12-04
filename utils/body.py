@@ -9,12 +9,15 @@ import pyqtgraph as pg
 import serial
 import json
 
-
 class Body(QWidget):
     def __init__(self, *args, **kwargs):
         super(Body, self).__init__()
         self.width = args[0]
         self.height = args[1]
+
+        # self.json_data = {}
+        self.x = 0
+        self.y = 0
 
         # Create a QStackedWidget to manage the different pages
         self.stacked_widget = QStackedWidget(self)
@@ -68,10 +71,12 @@ class Body(QWidget):
 
         # Serial communication with Arduino
         try:
-            self.arduino = serial.Serial('COM3', 9600)  
+            self.arduino = serial.Serial('COM12', 9600)  
         except serial.SerialException as e:
             print(f"Error opening Arduino port: {e}")
             self.arduino = None
+
+        self.current_time = QTime()
 
     def createTemperaturePage(self, title, temperature):
         page = QWidget()
@@ -85,6 +90,8 @@ class Body(QWidget):
         temperature_graph.setBackground('#ffffff')
         temperature_graph.setLabel('left', temperature)
         temperature_graph.setLabel('bottom', 'Time (s)')
+
+        temperature_graph.setRange(xRange=[0, 10], yRange=[0, 10])
 
         # Add widgets to the layout
         vbox = QVBoxLayout(page)
@@ -106,6 +113,8 @@ class Body(QWidget):
         distance_graph.setLabel('left', 'Distance (cm)')
         distance_graph.setLabel('bottom', 'Time (s)')
 
+        distance_graph.setRange(xRange=[0, 10], yRange=[0, 10])
+
         # Add widgets to the layout
         vbox = QVBoxLayout(page)
         vbox.addWidget(distance_label)
@@ -126,45 +135,80 @@ class Body(QWidget):
         self.stacked_widget.setCurrentIndex(3)
 
     def update(self):
+        # Read data from Arduino or use dummy data
         if self.arduino and self.arduino.isOpen():
+            data = self.arduino.readline().decode().strip()
+            if not data:
+                return  # Skip processing empty data
             try:
-                data = self.arduino.readline().decode().strip()
                 json_data = json.loads(data)
+            except json.decoder.JSONDecodeError as e:
+                print(f"Error decoding JSON: {e}")
+                return  # Skip processing invalid JSON
+        else:
+            # Dummy data for testing without Arduino
+            json_data = {"temperature_C": 25.0}
 
-                current_page_index = self.stacked_widget.currentIndex()
-                current_page_widget = self.stacked_widget.currentWidget()
+        # Calculate elapsed time in seconds
+        current_time_seconds = self.current_time.elapsed() / 1000.0
 
-                if "Temperature" in current_page_widget.windowTitle():
-                    # Determine the temperature unit based on the current page's title
-                    temperature_unit = current_page_widget.windowTitle().split()[-1]
-
-                    if temperature_unit == "(C)":
-                        self.updateTemperatureGraph(current_page_widget, json_data["temperature_C"])
-                    elif temperature_unit == "(F)":
-                        self.updateTemperatureGraph(current_page_widget, json_data["temperature_F"])
-                    elif temperature_unit == "(K)":
-                        self.updateTemperatureGraph(current_page_widget, json_data["temperature_K"])
-                elif "Distance" in current_page_widget.windowTitle():
-                    self.updateDistanceGraph(current_page_widget, json_data["distance"])
-
-            except (ValueError, UnicodeDecodeError, json.JSONDecodeError) as e:
-                print(f"Error reading data from Arduino: {e}")
+        # Update the temperature graph with the new data
+        self.updateGraph(self.stacked_widget.currentWidget(), json_data)
 
     def updateTemperatureGraph(self, page, value):
         temperature_graph = page.findChild(pg.PlotWidget)
 
         if temperature_graph:
-            # Update the temperature graph with the new value
-            pen = pg.mkPen(width=2)
-            temperature_graph.plot([value], pen=pen, symbol='o', symbolSize=5)
+            # Get the current data on the graph
+            x_data, y_data = temperature_graph.listData()
+
+            # Append the new value to the existing data
+            x_data.append(x_data[-1] + 1 if x_data else 0)
+            y_data.append(value)
+
+            # Update the temperature graph with the new data
+            pen = pg.mkPen(color='r', width=2)  # Adjust the color as needed
+            temperature_graph.clear()  # Clear the existing plot
+            temperature_graph.plot(x_data, y_data, pen=pen, symbol='o', symbolSize=5)
+
+    def updateGraph(self, page, value):
+        current_widget = self.stacked_widget.currentWidget()
+        graph = current_widget.findChild(pg.PlotWidget)
+
+        if graph:
+        # Get the current data on the graph
+            x_data, y_data = graph.listData()
+
+        # Calculate elapsed time in seconds
+            current_time_seconds = self.current_time.elapsed() / 1000.0
+
+        # Append the new value to the existing data
+            x_data.append(current_time_seconds)
+            y_data.append(value)
+
+        # Update the graph with the new data
+            pen = pg.mkPen(color='r', width=2)  # Adjust the color as needed
+            graph.plot(x_data, y_data, pen=pen, symbol='o', symbolSize=5)
 
     def updateDistanceGraph(self, page, value):
         distance_graph = page.findChild(pg.PlotWidget)
 
         if distance_graph:
-            # Update the distance graph with the new value
+            # Get the current data on the graph
+            x_data, y_data = distance_graph.listData()
+
+            # Append the new value to the existing data
+            x_data.append(len(x_data))
+            y_data.append(value)
+
+            # Update the distance graph with the new data
             pen = pg.mkPen(width=2)
-            distance_graph.plot([value], pen=pen, symbol='o', symbolSize=5)
+            distance_graph.plot(x_data, y_data, pen=pen, symbol='o', symbolSize=5)
+    
+    def closeEvent(self, event):
+        if self.arduino and self.arduino.isOpen():
+            self.arduino.close()
+        event.accept()
 
     def dimensions(self):
         return self.width, self.height

@@ -56,12 +56,12 @@ class Pod(QOpenGLWidget):
     def resizeGL(self, width, height):
         glViewport(0, 0, width, height)
 
-    def paintGL(self):
-        if (self.t == len(cons.PITCH)):
-            self.t = 0
-        self.m1.rotate(cons.PITCH[self.t], 1, 0, 0)
-        self.m1.rotate(cons.YAW[self.t], 0, 1, 0)
-        self.m1.rotate(cons.ROLL[self.t], 0, 0, 1)
-        self.t += 1
+    # def paintGL(self):
+    #     if (self.t == len(cons.PITCH)):
+    #         self.t = 0
+    #     self.m1.rotate(cons.PITCH[self.t], 1, 0, 0)
+    #     self.m1.rotate(cons.YAW[self.t], 0, 1, 0)
+    #     self.m1.rotate(cons.ROLL[self.t], 0, 0, 1)
+    #     self.t += 1
 
-        self.view.addItem(self.m1)
+    #     self.view.addItem(self.m1)
