@@ -1,4 +1,4 @@
-##How to Setup
+## How to Setup
 1. Create a Virtual Enviornment 
     `python -m venv <environment_name>`
     * Example: `python -m venv gui_env`
@@ -13,7 +13,7 @@
 
 4. Run the GUI: `python main.py`
 
-##The Project
+## The Project
 
 This project created a GUI to plot live data from two sensors, an ultrasonic sensor and a thermistor.
 
