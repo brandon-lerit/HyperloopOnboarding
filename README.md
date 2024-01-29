@@ -15,18 +15,18 @@
 
 ## The Project
 
-This project created a GUI to plot live data from two sensors, an ultrasonic sensor and a thermistor.
+    * This project created a GUI to plot live data from two sensors, an ultrasonic sensor and a thermistor.
 
 1. Thermistor
 
-The thermistor schematic and arduino code used to plot the data are linked below
+    * The thermistor schematic and arduino code used to plot the data are linked below
 
 ![Thermistor Code](images/thermistor_code.png)
 ![Thermistor Schematic](images/thermistor_schematic.png)
 
 2. Ultrasonic Sensor
 
-The ultrasonic schematic and arduino code used to plot the data are linked below
+    * The ultrasonic schematic and arduino code used to plot the data are linked below
 
-![Ultrasonic Sensor Code](images/ultrasonic.png)
-![Ultrasonic Sensor Schematic](images/ultrasonic.png)
+![Ultrasonic Sensor Code](images/ultrasonic_code.png)
+![Ultrasonic Sensor Schematic](images/ultrasonic_schematic.png)
